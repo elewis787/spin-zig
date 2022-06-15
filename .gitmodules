@@ -1,0 +1,3 @@
+[submodule "libs/http"]
+	path = libs/http
+	url = https://github.com/ducdetronquito/http.git
