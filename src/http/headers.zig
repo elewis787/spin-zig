@@ -61,7 +61,7 @@ pub const Headers = struct {
         return null;
     }
 
-    pub fn values(self: Headers, key: []const u8) [][]const u8 {
+    pub fn values(self: Headers, key: []const u8) ?[][]const u8 {
         var list = self.header_map.get(key).?;
         return list.items;
     }
@@ -69,7 +69,6 @@ pub const Headers = struct {
     pub fn del(self: *Headers, key: []const u8) bool{
         return self.header_map.remove(key);
     }
-
 };
 
 test "multiple headers" {
@@ -81,7 +80,7 @@ test "multiple headers" {
     try std.testing.expect(headers.header_map.count() == 1);
     try std.testing.expect(headers.header_map.contains("Accept"));
 
-    var values = headers.values("Accept");
+    var values = headers.values("Accept").?;
     try std.testing.expect(values.len == 2);
     var arStr: [2][]const u8 = [_][]const u8{ "Application/json,Application/xml", "Application/xml" };
     var test_slice = arStr[0..];
