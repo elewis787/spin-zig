@@ -1,8 +1,9 @@
-const std = @import("std");
-const Status = std.Status;
+const Status = @import("status.zig");
 const Headers = @import("headers.zig");
+const Version = @import("version.zig");
 
-pub const Reponse = struct {
+
+pub const Response = struct {
     status: Status,
     version: Version,
     headers: Headers,

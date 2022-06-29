@@ -22,9 +22,9 @@ pub fn Execute() !void {
         .body("");
     defer request.deinit();
 
-    var response = Response{body: _body,_version,_status,_headers};
+  //  var response = Response{body: _body,_version,_status,_headers};
 
-    try hanlderFn(request,response);
+  //  try hanlderFn(request,response);
 }
 
 fn defaulthandler(_: Request, _: Response) !void {
