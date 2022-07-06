@@ -21,12 +21,13 @@ pub fn spin_http_handle_http_request(req: *spin.spin_http_request_t, _: *spin.sp
     defer spin.spin_http_request_free(req);
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 
-    const meth = method.from_bytes(methods[req.method]);
-    if(@TypeOf(meth) != method ){return;}
+    const m = method.from_bytes(methods[req.method]);
+    if(@TypeOf(m) != method ){
+        return;}
 
     var r = try request.builder(gpa.allocator())
-        .method(meth)
-        .uri(req.uri)
+        .method(m)
+        .uri(req.uri.prt, req.uri.len)
         .body(req.body.val);
 
     defer r.deinit();
