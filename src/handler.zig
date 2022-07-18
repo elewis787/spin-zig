@@ -1,32 +1,20 @@
+const http = @import("http");
+const Request = http.Request;
+const Response = http.Response;
 const std = @import("std");
-const Request = @import("http").Request;
-const Response = @import("http").Response;
-const Method = @import("http").Method;
 
-var hanlderFn = defaulthandler;
+pub const HandlerFn = fn handle(*Request,*Response) void;
 
-pub const HandlerFn = fn handle(Request, Response) anyerror!void;
+pub var handler = defaultHandler;
 
-pub fn Handler(comptime handler: anytype) !void {
-    if (@TypeOf(handler) == HandlerFn) {
-        hanlderFn = handler;
-    } else {
-        hanlderFn = defaulthandler;
+pub fn defaultHandler(req: *Request,res: *Response) void {
+    _ = req;
+    _ = res;
+    std.debug.print("http handler undefined\n", .{});
+}
+
+pub fn handle(comptime h: HandlerFn) void {
+    comptime {
+        handler = h;
     }
-}
-
-pub fn Execute() !void {
-    var request = try Request.builder(std.testing.allocator)
-        .method(Method.Get)
-        .uri("https://ziglang.org/")
-        .body("");
-    defer request.deinit();
-
-  //  var response = Response{body: _body,_version,_status,_headers};
-
-  //  try hanlderFn(request,response);
-}
-
-fn defaulthandler(_: Request, _: Response) !void {
-    std.log.info("All your codebase are belong to us. boom", .{});
 }

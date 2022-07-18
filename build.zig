@@ -6,7 +6,7 @@ pub fn build(b: *std.build.Builder) void {
     const mode = b.standardReleaseOptions();
 
     const lib = b.addStaticLibrary("spin-zig", "src/main.zig");
-    lib.addIncludeDir("src");
+    lib.addIncludeDir("./src");
     lib.linkLibC();
     lib.addPackage(.{
         .name = "http",
