@@ -1,3 +1,6 @@
 [submodule "libs/http"]
 	path = libs/http
 	url = https://github.com/ducdetronquito/http.git
+[submodule "libs/zhp"]
+	path = libs/zhp
+	url = https://github.com/frmdstryr/zhp.git

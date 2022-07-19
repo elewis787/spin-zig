@@ -1,5 +1,5 @@
 const Headers = @import("headers.zig");
-const Method = @import("method.zig");
+const Method = @import("std").http.Method;
 const Version = @import("version.zig");
 
 pub const Request = struct {

@@ -1,7 +1,6 @@
-const Status = @import("status.zig");
+const Status = @import("std").http.Status;
 const Headers = @import("headers.zig");
 const Version = @import("version.zig");
-
 
 pub const Response = struct {
     status: Status,
