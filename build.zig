@@ -6,7 +6,7 @@ pub fn build(b: *std.build.Builder) void {
     const mode = b.standardReleaseOptions();
 
     const exe = b.addExecutable("spin-example", "example/main.zig");
-    exe.addPackagePath("spin", "src/spin.zig");
+    exe.addPackage(.{ .name = "spin", .source = .{ .path = "src/spin.zig" }});
     exe.addCSourceFile("src/spin-http.c", &.{});
     exe.addIncludeDir("src");
     exe.linkLibC();
@@ -17,6 +17,10 @@ pub fn build(b: *std.build.Builder) void {
     const lib = b.addStaticLibrary("spin-zig", "src/spin.zig");
     lib.addIncludeDir("src");
     lib.linkLibC();
+   // lib.addPackage(.{
+   //     .name = "zhp",
+   //     .source = .{ .path = "libs/zhp/src/zhp.zig" },
+   // });
     lib.addCSourceFile("src/spin-http.c", &.{});
     lib.setBuildMode(mode);
     lib.install();

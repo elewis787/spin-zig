@@ -1,13 +1,14 @@
 const std = @import("std");
 const spin = @import("spin");
 
-fn hello(req: *spin.Request, res: *spin.Response) void {
+fn hello(req: *spin.Request, rw: *spin.ResponseWriter) void {
     _ = req;
-    res.status = std.http.Status.non_authoritative_info;
-    if (@enumToInt(req.method) == 0) {
-        res.body = "GET";
+    _ = rw;
+    rw.status(std.http.Status.non_authoritative_info);
+    const n = rw.write("{\"foo\":\"bar\", \"baz\":\"boo\"}");
+    if (@TypeOf(n) != usize ) {
+        rw.status(std.http.Status.internal_server_error);
     }
-    std.debug.print("Hello, {s}!\n", .{"v"});
 }
 
 pub fn main() void {

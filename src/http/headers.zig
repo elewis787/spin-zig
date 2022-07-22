@@ -5,8 +5,10 @@ const StringHashMap = std.StringHashMap;
 const Allocator = mem.Allocator;
 const test_allocator = std.testing.allocator;
 
+const HeaderMap = StringHashMap(ArrayList([]const u8));
+
 pub const Headers = struct {
-    const HeaderMap = StringHashMap(ArrayList([]const u8));
+   // const HeaderMap = StringHashMap(ArrayList([]const u8));
     header_map: HeaderMap,
     allocator: Allocator,
 

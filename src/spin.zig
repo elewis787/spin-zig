@@ -1,21 +1,23 @@
 const std = @import("std");
 //const h = @import("handler.zig");
 pub const http = @import("./http/http.zig");
-pub const Request = @import("./http/http.zig").Request;
-pub const Response = @import("./http/http.zig").Response;
+pub const Request = http.Request;
+pub const ResponseWriter = http.ResponseWriter;
+
+//pub const Response = @import("zhp").Response;
 const Method = @import("std").http.Method;
 
 const c = @cImport({
     @cInclude("spin-http.h");
 });
 
-pub const HandlerFn = fn handle(*Request, *Response) void;
+pub const HandlerFn = fn handle(*Request, *ResponseWriter) void;
 
 // defaultHandler is the default function used by spin if the user fails to set a handler
-pub fn defaultHandler(req: *Request, res: *Response) void {
+pub fn defaultHandler(req: *Request, rw: *ResponseWriter) void {
     _ = req;
-    _ = res;
-    res.status = std.http.Status.service_unavailable;
+    _ = rw;
+  //  res.status = std.http.Status.service_unavailable;
     std.debug.print("http handler undefined\n", .{});
 }
 
@@ -27,8 +29,8 @@ pub const Http = handle: {
         pub fn handle(comptime h: HandlerFn) void {
             self = h;
         }
-        fn call(req: *Request, resp: *Response) void {
-            self(req, resp);
+        fn call(req: *Request, rw: *ResponseWriter) void {
+            self(req, rw);
         }
     };
     break :handle result;
@@ -88,19 +90,32 @@ export fn spin_http_handle_http_request(req: *c.spin_http_request_t, res: *c.spi
         .body = body,
         .version = undefined,
     };
-    var response = Response{
-        .status = std.http.Status.ok,
-        .headers = undefined,
-        .body = undefined,
-        .version = undefined,
+    const allocator = std.testing.allocator;
+    var rw = ResponseWriter.initCapacity(allocator, 4096, 1096) catch {
+        res.status = 500;
+        return;
     };
-
-    Http.call(&request, &response);
-    res.status = @enumToInt(response.status);
-    var b = [_]u8{'t','e','s','t'};
+    defer rw.deinit();
+    var key = [_]u8{'C','o','n','t','e','n','t','-','T','y','p','e'};
+    var value = [_]u8{'a','p','p','l','i','c','a','t','i','o','n','/','j','s','o','n'};
+    Http.call(&request, &rw);
+    res.status = @enumToInt(rw.response.status);
    // std.mem.copy(u8, b[0..response.body.len], "test");
+    res.headers = c.spin_http_option_headers_t{ .tag = true, .val = c.spin_http_headers_t{
+        .ptr = &c.spin_http_tuple2_string_string_t{
+            .f0 = c.spin_http_string_t{
+                .ptr = &key,
+                .len = key.len,
+            },
+            .f1 = c.spin_http_string_t{
+                .ptr = &value,
+                .len = value.len,
+            }
+        },
+        .len = 1,
+    }};
     res.body = c.spin_http_option_body_t{ .tag = true, .val = c.spin_http_body_t{
-        .ptr = &b,
-        .len = 4,
+        .ptr = rw.response.body.items.ptr,
+        .len = rw.response.body.items.len,
     } };
 }
