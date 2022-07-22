@@ -3,11 +3,10 @@ const spin = @import("spin");
 
 fn hello(req: *spin.Request, rw: *spin.ResponseWriter) void {
     _ = req;
-    _ = rw;
-    rw.status(std.http.Status.non_authoritative_info);
+    rw.status(std.http.Status.ok);
     const n = rw.write("{\"foo\":\"bar\", \"baz\":\"boo\"}");
-    if (@TypeOf(n) != usize ) {
-        rw.status(std.http.Status.internal_server_error);
+    if (@TypeOf(n) == spin.WriteError ) {
+        rw.status(std.http.Status.non_authoritative_info);
     }
 }
 

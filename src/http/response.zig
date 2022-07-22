@@ -5,7 +5,8 @@ const http = @import("http.zig");
 const Headers = http.Headers;
 const Version = http.Version;
 
-const Bytes = std.ArrayList(u8);
+const Bytes = std.ArrayList(u8); // []u8 slice
+                                    // [_]u8 
 
 pub const WriteError = error{OutOfMemory};
 
