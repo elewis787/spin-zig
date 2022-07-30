@@ -63,6 +63,10 @@ pub const Headers = struct {
         return null;
     }
 
+    pub fn count(self: Headers) u32 {
+        return self.header_map.count();
+    }
+
     pub fn values(self: Headers, key: []const u8) ?[][]const u8 {
         var list = self.header_map.get(key).?;
         return list.items;

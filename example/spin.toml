@@ -1,0 +1,13 @@
+spin_version = "1"
+authors = ["elewis"]
+description = "A simple Spin application written in Zig."
+name = "spin-hello-zig"
+trigger = { type = "http", base = "/" }
+version = "1.0.0"
+
+[[component]]
+id = "zig-hello"
+source = "../zig-out/bin/spin-example.wasm"
+[component.trigger]
+route = "/hello"
+

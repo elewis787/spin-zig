@@ -4,6 +4,8 @@ pub const http = @import("./http/http.zig");
 pub const WriteError = http.WriteError;
 pub const Request = http.Request;
 pub const ResponseWriter = http.ResponseWriter;
+pub const Headers = http.Headers;
+const ArrayList = std.ArrayList;
 
 //pub const Response = @import("zhp").Response;
 const Method = @import("std").http.Method;
@@ -66,23 +68,6 @@ export fn spin_http_handle_http_request(req: *c.spin_http_request_t, res: *c.spi
 
     const m = method(req.method);
 
-    //  var request = try Request.builder(std.testing.allocator)
-    //      .method(Method.Get)
-    //      .body(body);
-    // var response = try Response.builder(std.testing.allocator)
-    //     .version(.Http11)
-    //     .status(StatusCode.Forbidden)
-    //     .header("GOTTA-GO", "FAST")
-    //     .body("ᕕ( ᐛ )ᕗ");
-    //  var request = Request.initCapacity(allocator, 1000, 100, 10) catch |err| {
-    //     std.debug.print("{s}!\n", .{err});
-    //     return;
-    //  };
-    // var response = Response.initCapacity(allocator, 1000, 100) catch |err| {
-    //     std.debug.print("{s}!\n", .{err});
-    //     return;
-    // };
-
     var request = Request{
         .method = m,
         .headers = undefined,
@@ -92,32 +77,66 @@ export fn spin_http_handle_http_request(req: *c.spin_http_request_t, res: *c.spi
         .version = undefined,
     };
     const allocator = std.testing.allocator;
+
     var rw = ResponseWriter.initCapacity(allocator, 4096, 1096) catch {
-        res.status = 200;
+        res.status = 300;
         return;
     };
     defer rw.deinit();
-    // var key = [_]u8{ 'C', 'o', 'n', 't', 'e', 'n', 't', '-', 'T', 'y', 'p', 'e' };
-    // var value = [_]u8{ 'a', 'p', 'p', 'l', 'i', 'c', 'a', 't', 'i', 'o', 'n', '/', 'j', 's', 'o', 'n' };
+
+    var key = [_]u8{ 'A', 'c', 'c', 'e', 'p', 't' };
+    var value = [_]u8{ 'A', 'p', 'p', 'l', 'i', 'c', 'a', 't', 'i', 'o', 'n', '/', 'j', 's', 'o', 'n' };
+
+    var key2 = [_]u8{ 'a', 'u', 't', 'h' };
+    var value2 = [_]u8{ 'A', 'p', 'p', 'l', 'i', 'c', 'a', 't', 'i', 'o', 'n', '/', 'x', 'm', 'l' };
+
     Http.call(&request, &rw);
+
     res.status = @enumToInt(rw.response.status);
-    // std.mem.copy(u8, b[0..response.body.len], "test");
-    //res.headers = c.spin_http_option_headers_t{ .tag = true, .val = c.spin_http_headers_t{
-    // .ptr = &c.spin_http_tuple2_string_string_t{
-    //.f0 = c.spin_http_string_t{
-    //      .ptr = &key,
-    //        .len = key.len,
-    //      },
-    //        .f1 = c.spin_http_string_t{
-    //            .ptr = &value,
-    //            .len = value.len,
-    //       }
-    //    },
-    //    .len = 1,
-    //}};
-    //var b = [_]u8{ 'h', 'i' };
+
+    var headermap = Headers.init(allocator);
+    headermap.add("Accept", "Application/json") catch {
+        res.status = 506;
+        return;
+    };
+
+    const headers = allocator.alloc(c.spin_http_tuple2_string_string_t,2) catch unreachable;
+    headers[0] = c.spin_http_tuple2_string_string_t{ .f0 = c.spin_http_string_t{
+        .ptr = &key[0],
+        .len = key.len,
+    }, .f1 = c.spin_http_string_t{
+        .ptr = &value[0],
+        .len = value.len,
+    } };
+
+    headers[1] = c.spin_http_tuple2_string_string_t{ .f0 = c.spin_http_string_t{
+        .ptr = &key2[0],
+        .len = key2.len,
+    }, .f1 = c.spin_http_string_t{
+        .ptr = &value2[0],
+        .len = value2.len,
+    } };
+
+    std.debug.print("{s}\n", .{key});
+    std.debug.print("{s}\n", .{value});
+    std.debug.print("{s}\n", .{&key[0]});
+    std.debug.print("{s}\n", .{&value[0]});
+    std.debug.print("{s}\n", .{headers});
+
+
+    // const h align(@alignOf([]c.spin_http_tuple2_string_string_t)) = hl.toOwnedSlice();
+    std.debug.print("{d}\n", .{headers.len});
+    std.debug.print("size of string_t {}\n",.{@sizeOf(c.spin_http_string_t)});
+    std.debug.print("size of tuple_t {}\n", .{@sizeOf(c.spin_http_tuple2_string_string_t)});
+    std.debug.print("size of headers {}\n", .{@sizeOf([2]c.spin_http_tuple2_string_string_t)});
+    std.debug.print("pointer int {}\n", .{@ptrToInt(headers.ptr)});
+    res.headers = c.spin_http_option_headers_t{ .is_some = true, .val = c.spin_http_headers_t{
+        .ptr = headers.ptr,
+        .len = headers.len,
+    } };
+
     const slice = rw.response.body.toOwnedSlice();
-    res.body = c.spin_http_option_body_t{ .tag = true, .val = c.spin_http_body_t{
+    res.body = c.spin_http_option_body_t{ .is_some = true, .val = c.spin_http_body_t{
         .ptr = slice.ptr,
         .len = slice.len,
     } };
