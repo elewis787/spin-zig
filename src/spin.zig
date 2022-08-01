@@ -61,8 +61,6 @@ export fn spin_http_handle_http_request(req: *c.spin_http_request_t, res: *c.spi
     defer {
         c.spin_http_request_free(req);
     }
-    _ = req;
-    _ = res;
 
     const body = std.mem.span(req.body.val.ptr);
 
@@ -124,7 +122,6 @@ export fn spin_http_handle_http_request(req: *c.spin_http_request_t, res: *c.spi
     std.debug.print("{s}\n", .{headers});
 
 
-    // const h align(@alignOf([]c.spin_http_tuple2_string_string_t)) = hl.toOwnedSlice();
     std.debug.print("{d}\n", .{headers.len});
     std.debug.print("size of string_t {}\n",.{@sizeOf(c.spin_http_string_t)});
     std.debug.print("size of tuple_t {}\n", .{@sizeOf(c.spin_http_tuple2_string_string_t)});

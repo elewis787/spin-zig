@@ -157,6 +157,7 @@ int32_t __wasm_export_spin_http_handle_http_request(int32_t arg, int32_t arg0, i
     *((int8_t*)(ptr + 16)) = 1;
     *((int32_t*)(ptr + 24)) = (int32_t) (*payload12).len;
     *((int32_t*)(ptr + 20)) = (int32_t) (*payload12).ptr;
+    printf("body set\n");
   } else {
     *((int8_t*)(ptr + 16)) = 0;
   }
