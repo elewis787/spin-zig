@@ -4,7 +4,7 @@ zig sdk for spin
 
 ## Building 
 
-The spin-zig sdk leverages the c bindings produced from `wit-bindgen`. The `zig.build` links all necessary c libraries in order for the sdk to compile. 
+The spin-zig sdk leverages the c bindings produced from `wit-bindgen`. The `build.zig` links all necessary c libraries in order for the sdk to compile. 
 
 To build the example and sdk run:
 
