@@ -82,12 +82,7 @@ export fn spin_http_handle_http_request(req: *c.spin_http_request_t, res: *c.spi
     };
     defer rw.deinit();
 
-    var key = [_]u8{ 'A', 'c', 'c', 'e', 'p', 't' };
-    var value = [_]u8{ 'A', 'p', 'p', 'l', 'i', 'c', 'a', 't', 'i', 'o', 'n', '/', 'j', 's', 'o', 'n' };
-
-    var key2 = [_]u8{ 'a', 'u', 't', 'h' };
-    var value2 = [_]u8{ 'A', 'p', 'p', 'l', 'i', 'c', 'a', 't', 'i', 'o', 'n', '/', 'x', 'm', 'l' };
-
+ 
     Http.call(&request, &rw);
 
     res.status = @enumToInt(rw.response.status);
@@ -97,6 +92,14 @@ export fn spin_http_handle_http_request(req: *c.spin_http_request_t, res: *c.spi
         res.status = 506;
         return;
     };
+
+    // Manually create key/value headers to hard code response ( testing only )
+    var key = [_]u8{ 'A', 'c', 'c', 'e', 'p', 't' };
+    var value = [_]u8{ 'A', 'p', 'p', 'l', 'i', 'c', 'a', 't', 'i', 'o', 'n', '/', 'j', 's', 'o', 'n' };
+
+    var key2 = [_]u8{ 'a', 'u', 't', 'h' };
+    var value2 = [_]u8{ 'A', 'p', 'p', 'l', 'i', 'c', 'a', 't', 'i', 'o', 'n', '/', 'x', 'm', 'l' };
+
 
     const headers = allocator.alloc(c.spin_http_tuple2_string_string_t,2) catch unreachable;
     headers[0] = c.spin_http_tuple2_string_string_t{ .f0 = c.spin_http_string_t{
