@@ -25,6 +25,7 @@ size_t align
   printf("calling free on %d\n", ptr);
   printf("size %d\n", size);
   printf("align %d\n",align);
+  printf("value %s\n", &ptr);
   free(ptr);
 }
 #include <string.h>
@@ -131,18 +132,26 @@ int32_t __wasm_export_spin_http_handle_http_request(int32_t arg, int32_t arg0, i
     (spin_http_params_t) { (spin_http_tuple2_string_string_t*)(arg4), (size_t)(arg5) },
     option,
   };
+  // does this allocate ? 
   spin_http_response_t ret;
   printf("=============calling handle request\n");
+  // FFI 
   spin_http_handle_http_request(&arg9, &ret);
+  // 28 slots avail in mem
+  // 4 bytes 
   int32_t ptr = (int32_t) &RET_AREA;
+  // 2 bytes 
   *((int16_t*)(ptr + 0)) = (int32_t) ((ret).status);
   printf("put status at %d\n",*((int16_t*)(ptr + 0)));
 
   if (((ret).headers).is_some) {
     const spin_http_headers_t *payload10 = &((ret).headers).val;
     // = 9 ... 1 bytes for int8, 4 bytes for int32, 4 bytes for int 32
+    // 1 
     *((int8_t*)(ptr + 4)) = 1;
+    // 4
     *((int32_t*)(ptr + 12)) = (int32_t) (*payload10).len;
+    // 4 
     *((int32_t*)(ptr + 8)) = (int32_t) (*payload10).ptr;
     printf("pointer value %d\n", (*payload10).ptr);
     printf("set headers\n");
@@ -154,13 +163,18 @@ int32_t __wasm_export_spin_http_handle_http_request(int32_t arg, int32_t arg0, i
   if (((ret).body).is_some) {
     printf("have body\n");
     const spin_http_body_t *payload12 = &((ret).body).val;
+   // 1
     *((int8_t*)(ptr + 16)) = 1;
+   // 4
     *((int32_t*)(ptr + 24)) = (int32_t) (*payload12).len;
+    // 4
     *((int32_t*)(ptr + 20)) = (int32_t) (*payload12).ptr;
     printf("body set\n");
   } else {
     *((int8_t*)(ptr + 16)) = 0;
   }
   printf("=============returning ptr %d\n", ptr);
+
+  printf("done with wasm export\n");
   return ptr;
 }
